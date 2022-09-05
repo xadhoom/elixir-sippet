@@ -26,6 +26,13 @@ defmodule Sippet.Core do
             ) ::
               any
 
+  @callback receive_request(
+              sippet :: atom(),
+              incoming_request :: Message.request(),
+              server_key :: Transactions.Server.t() | nil
+            ) ::
+              any
+
   @doc """
   Receives a response for a sent request.
 
@@ -38,6 +45,13 @@ defmodule Sippet.Core do
   `client_key` is `nil`.
   """
   @callback receive_response(
+              incoming_response :: Message.response(),
+              client_key :: Transactions.Client.t() | nil
+            ) ::
+              any
+
+  @callback receive_response(
+              sippet :: atom(),
               incoming_response :: Message.response(),
               client_key :: Transactions.Client.t() | nil
             ) ::
@@ -56,6 +70,17 @@ defmodule Sippet.Core do
                 | Transactions.Server.t()
             ) ::
               any
+
+  @callback receive_error(
+              sippet :: atom(),
+              reason :: term,
+              client_or_server_key ::
+                Transactions.Client.t()
+                | Transactions.Server.t()
+            ) ::
+              any
+
+  @optional_callbacks receive_request: 3, receive_response: 3, receive_error: 3
 
   defmacro __using__(_opts) do
     quote location: :keep do
