@@ -164,6 +164,30 @@ defmodule Sippet do
   end
 
   @doc """
+  Retrieve transport address and port. Useful if it was started with zero as a port
+  """
+  @spec get_transport_address_and_port(sippet, atom) :: {binary, :inet.port_number}
+  def get_transport_address_and_port(sippet, protocol) when is_atom(sippet) and is_atom(protocol) do
+    case Registry.lookup(sippet, {:transport, protocol}) do
+      [{pid, _}] ->
+        get_transport_address_and_port_impl(pid, protocol)
+
+      _ ->
+        raise ArgumentError, message: "protocol not registered"
+    end
+  end
+
+  defp get_transport_address_and_port_impl(pid, :udp) do
+    alias Sippet.Transports.UDP
+
+    UDP.get_address_and_port(pid)
+  end
+
+  defp get_transport_address_and_port_impl(_pid, _) do
+    raise ArgumentError, message: "protocol not registered"
+  end
+
+  @doc """
   Terminates a client or server transaction forcefully.
 
   This function is not generally executed by entities; there is a single case

@@ -18,7 +18,9 @@ defmodule Sippet.Transports.UDP do
 
   defstruct socket: nil,
             family: :inet,
-            sippet: nil
+            sippet: nil,
+            address: nil,
+            port: nil
 
   @doc """
   Starts the UDP transport.
@@ -38,7 +40,7 @@ defmodule Sippet.Transports.UDP do
 
     port =
       case Keyword.fetch(options, :port) do
-        {:ok, port} when is_integer(port) and port >= 0 and port < 65536 ->
+        {:ok, port} when is_integer(port) and port >= 0 and port < 65_536 ->
           port
 
         {:ok, other} ->
@@ -79,6 +81,13 @@ defmodule Sippet.Transports.UDP do
     GenServer.start_link(__MODULE__, {name, ip, port, family})
   end
 
+  @doc """
+  Retrieves the address and port on which this transport was started
+  """
+  def get_address_and_port(server) do
+    GenServer.call(server, :get_address_and_port)
+  end
+
   @impl true
   def init({name, ip, port, family}) do
     Sippet.register_transport(name, :udp, false)
@@ -95,10 +104,16 @@ defmodule Sippet.Transports.UDP do
             "#{stringify_sockname(socket)}/udp"
         )
 
+        port = if port == 0, do: get_socket_port(socket), else: port
+
+        address = ip |> :inet_parse.ntoa() |> to_string()
+
         state = %__MODULE__{
           socket: socket,
           family: family,
-          sippet: name
+          sippet: name,
+          address: address,
+          port: port
         }
 
         {:noreply, state}
@@ -150,6 +165,11 @@ defmodule Sippet.Transports.UDP do
   end
 
   @impl true
+  def handle_call(:get_address_and_port, _from, state) do
+    {:reply, {state.address, state.port}, state}
+  end
+
+  @impl true
   def terminate(reason, %{socket: socket}) do
     Logger.debug(
       "stopped transport #{stringify_sockname(socket)}/udp, reason: #{inspect(reason)}"
@@ -177,5 +197,14 @@ defmodule Sippet.Transports.UDP do
 
   defp stringify_hostport(host, port) do
     "#{host}:#{port}"
+  end
+
+  defp get_socket_port(socket) do
+    case :inet.port(socket) do
+      {:ok, port} -> port
+      err ->
+        Logger.error("error getting socket port: #{inspect err}")
+        raise RuntimeError, "error getting socket port: #{inspect err}"
+    end
   end
 end
