@@ -38,12 +38,12 @@ defmodule Sippet.Transports.UDP do
 
     port =
       case Keyword.fetch(options, :port) do
-        {:ok, port} when is_integer(port) and port > 0 and port < 65536 ->
+        {:ok, port} when is_integer(port) and port >= 0 and port < 65536 ->
           port
 
         {:ok, other} ->
           raise ArgumentError,
-                "expected :port to be an integer between 1 and 65535, got: #{inspect(other)}"
+                "expected :port to be an integer between 0 and 65535, got: #{inspect(other)}"
 
         :error ->
           5060
