@@ -128,7 +128,8 @@ defmodule Sippet.Router do
 
     GenServer.call(
       {:via, Registry, {sippet, {:transport, protocol}}},
-      {:send_message, message, host, port, key}
+      {:send_message, message, host, port, key},
+      Sippet.Utils.get_timeout(:send_transport_message)
     )
   end
 

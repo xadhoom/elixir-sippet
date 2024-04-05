@@ -85,7 +85,7 @@ defmodule Sippet.Transports.UDP do
   Retrieves the address and port on which this transport was started
   """
   def get_address_and_port(server) do
-    GenServer.call(server, :get_address_and_port)
+    GenServer.call(server, :get_address_and_port, Sippet.Utils.get_timeout(:get_address_and_port))
   end
 
   @impl true
