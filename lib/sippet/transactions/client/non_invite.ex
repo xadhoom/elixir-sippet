@@ -142,6 +142,10 @@ defmodule Sippet.Transactions.Client.NonInvite do
   def completed(:cast, {:error, _reason}, _data),
     do: :keep_state_and_data
 
+  def completed(:info, last_delay, _data) when is_integer(last_delay), do: :keep_state_and_data
+
+  def completed(:info, :deadline, _data), do: :keep_state_and_data
+
   def completed(event_type, event_content, data),
     do: unhandled_event(event_type, event_content, data)
 end

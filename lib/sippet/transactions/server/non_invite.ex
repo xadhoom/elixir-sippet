@@ -78,6 +78,8 @@ defmodule Sippet.Transactions.Server.NonInvite do
     :keep_state_and_data
   end
 
+  def completed(:cast, {:outgoing_response, _response}, _data), do: :keep_state_and_data
+
   def completed(:cast, {:error, _reason}, _data),
     do: :keep_state_and_data
 
