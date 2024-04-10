@@ -1049,7 +1049,7 @@ int on_load(ErlNifEnv* env, void** priv_data, ERL_NIF_TERM load_info) {
 }
 
 static ErlNifFunc nif_funcs[] = {
-  {"parse", 1, parse_wrapper, ERL_NIF_DIRTY_JOB_CPU_BOUND},
+  {"parse", 1, parse_wrapper},
 };
 
 ERL_NIF_INIT(Elixir.Sippet.Parser, nif_funcs, on_load, NULL, NULL, NULL)
