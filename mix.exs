@@ -1,4 +1,5 @@
 defmodule Sippet.Mixfile do
+  @moduledoc false
   use Mix.Project
 
   @version "1.0.10"
@@ -7,7 +8,7 @@ defmodule Sippet.Mixfile do
     [
       app: :sippet,
       version: @version,
-      elixir: "~> 1.10",
+      elixir: "~> 1.14",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       # Add the make compiler
