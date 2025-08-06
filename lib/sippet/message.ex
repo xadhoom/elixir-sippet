@@ -12,6 +12,8 @@ defmodule Sippet.Message do
 
   @behaviour Access
 
+  require Logger
+
   alias Sippet.URI, as: URI
   alias Sippet.Message.RequestLine, as: RequestLine
   alias Sippet.Message.StatusLine, as: StatusLine
@@ -1724,6 +1726,7 @@ defmodule Sippet.Message do
             :ok
 
           true ->
+            Logger.warning("Content-Length (#{content_length}) and message body size (#{byte_size(message.body)}) do not match for message #{message}")
             {:error, "Content-Length and message body size do not match"}
         end
 
