@@ -78,7 +78,7 @@ defmodule Sippet.Transports.UDP do
                 ":address contains an invalid IP or DNS name, got: #{inspect(reason)}"
       end
 
-    GenServer.start_link(__MODULE__, {name, ip, port, family})
+    GenServer.start_link(__MODULE__, {name, ip, port, family, options})
   end
 
   @doc """
@@ -89,15 +89,15 @@ defmodule Sippet.Transports.UDP do
   end
 
   @impl true
-  def init({name, ip, port, family}) do
+  def init({name, ip, port, family, options}) do
     Sippet.register_transport(name, :udp, false)
 
-    {:ok, nil, {:continue, {name, ip, port, family}}}
+    {:ok, nil, {:continue, {name, ip, port, family, options}}}
   end
 
   @impl true
-  def handle_continue({name, ip, port, family}, nil) do
-    case :gen_udp.open(port, [:binary, {:active, true}, {:ip, ip}, family]) do
+  def handle_continue({name, ip, port, family, options}, nil) do
+    case :gen_udp.open(port, [:binary, {:recbuf, get_udp_recvbuf(options)}, {:active, true}, {:ip, ip}, family]) do
       {:ok, socket} ->
         Logger.debug(
           "#{inspect(self())} started transport " <>
@@ -206,5 +206,12 @@ defmodule Sippet.Transports.UDP do
         Logger.error("error getting socket port: #{inspect err}")
         raise RuntimeError, "error getting socket port: #{inspect err}"
     end
+  end
+
+  defp get_udp_recvbuf(options) do
+    # 9216 is the erlang default
+
+    options
+    |> Keyword.get(:udp_recvbuf, 9216)
   end
 end
