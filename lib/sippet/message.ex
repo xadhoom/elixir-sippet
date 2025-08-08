@@ -1726,7 +1726,8 @@ defmodule Sippet.Message do
             :ok
 
           true ->
-            Logger.warning("Content-Length (#{content_length}) and message body size (#{byte_size(message.body)}) do not match for message #{message}")
+            Logger.warning("Content-Length (#{content_length}) and message body size (#{byte_size(message.body)}) do not match")
+            Logger.debug("  invalid message is #{message}")
             {:error, "Content-Length and message body size do not match"}
         end
 
